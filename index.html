@@ -15,6 +15,7 @@ header{background:#007bff;color:white;padding:15px;}
 .product{background:white;margin:10px auto;padding:15px;border-radius:8px;max-width:300px;box-shadow:0 2px 5px rgba(0,0,0,0.2);}
 .product button{padding:8px 12px;background:green;color:white;border:none;border-radius:5px;cursor:pointer;}
 #adminPanel{display:none;margin-top:20px;}
+input{padding:8px;width:80%;max-width:250px;border-radius:5px;border:1px solid #ccc;}
 </style>
 </head>
 
@@ -63,12 +64,45 @@ const firebaseConfig = {
   appId: "1:88384740672:web:66018fe5ca982039872ea5"
 };
 
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
+
+/* SHOW LOGIN FORM */
+window.showLogin = function () {
+  document.getElementById("authSection").innerHTML = `
+    <h3>Login</h3>
+    <input id="loginEmail" type="email" placeholder="Email"><br><br>
+    <input id="loginPassword" type="password" placeholder="Password"><br><br>
+    <button onclick="loginUser()">Login</button>
+  `;
+};
+
+/* SHOW SIGNUP FORM */
+window.showSignup = function () {
+  document.getElementById("authSection").innerHTML = `
+    <h3>Create Account</h3>
+    <input id="signupEmail" type="email" placeholder="Email"><br><br>
+    <input id="signupPassword" type="password" placeholder="Password"><br><br>
+    <button onclick="signupUser()">Sign Up</button>
+  `;
+};
+
+/* SIGNUP BUTTON */
+window.signupUser = function(){
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  signup(email,password);
+}
+
+/* LOGIN BUTTON */
+window.loginUser = function(){
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  login(email,password);
+}
 
 /* SIGN UP */
 window.signup = async function(email,password){
@@ -91,6 +125,8 @@ window.login = async function(email,password){
 /* LOGOUT */
 window.logout = function(){
   signOut(auth);
+  document.getElementById("adminPanel").style.display="none";
+  alert("Logged Out");
 }
 
 /* PLACE ORDER */
@@ -105,7 +141,7 @@ window.placeOrder = async function(product){
     product: product,
     userEmail: currentUser.email,
     status: "pending",
-    createdAt: new Date()
+    createdAt: Date.now()
   });
 
   alert("Order Placed");
@@ -137,7 +173,6 @@ onAuthStateChanged(auth, async (user)=>{
   currentUser = user;
 
   if(user){
-
     const userDoc = await getDoc(doc(db,"users",user.uid));
 
     if(userDoc.exists() && userDoc.data().role==="admin"){
@@ -149,4 +184,4 @@ onAuthStateChanged(auth, async (user)=>{
 </script>
 
 </body>
-</html>
+  </html>
